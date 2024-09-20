@@ -1,5 +1,6 @@
 
 # AI Cognition Vision Chat (Using Local Langauge Models)
+![CognitionVisionChat Jose Perez CreativeDisruptor](https://github.com/user-attachments/assets/7b2f3506-e927-43cc-a2e5-82442ebaa4da)
 
 ## A Step Toward Real-Time AI Cognition
 
