@@ -30,6 +30,7 @@ The goal of this project is to simulate a small piece of what human cognition mi
 
 ### 1. Convolutional Autoencoder for Memory
 
+
 At the core of this project is a `FastConvolutionalAutoencoder`, a type of neural network designed to reduce the dimensionality of input images (captured by the webcam) and then reconstruct them. This autoencoder acts as the AI’s memory, compressing incoming visual data and allowing the AI to "recall" its simplified form later.
 
 - **Encoder**: Compresses the image into a smaller, more memory-efficient representation.
@@ -51,6 +52,7 @@ class FastConvAutoencoder(nn.Module):
             nn.Sigmoid()
         )
 ```
+![convolutional memory sample](https://github.com/user-attachments/assets/37f6a2a3-183d-4f20-b1e9-7d6d973dbce3)
 
 ### 2. Real-Time Webcam Feed
 
