@@ -1,0 +1,5 @@
+torch==1.9.0+cu111  # or appropriate version for your system
+torchvision==0.10.0+cu111
+opencv-python==4.5.3.56
+Pillow==8.2.0
+ollama==1.0.0  # Replace with your specific version
