@@ -1,5 +1,5 @@
 
-# AI Cognition Vision Chat
+# AI Cognition Vision Chat (Using Local Langauge Models)
 
 ## A Step Toward Real-Time AI Cognition
 
