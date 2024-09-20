@@ -114,7 +114,7 @@ This project serves as a basis for exploring how AI can simulate cognition by pr
 Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/ai-cognition-vision-chat.git
+git clone https://github.com/LLaVa-Vision-AI-MultiAgent-Cognition/ai-cognition-vision-chat.git
 cd ai-cognition-vision-chat
 ```
 
