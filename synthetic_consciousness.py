@@ -14,7 +14,8 @@ from sentence_transformers import SentenceTransformer
 from queue import Queue
 
 # --- CONFIGURATION ---
-VISION_MODEL = "llama3.2-vision:11b" # Or "gemma3:27b-it-qat"
+# You can change this to "llava-phi3" or "llama3.2-vision" depending on what you have installed
+VISION_MODEL = "gemma3:27b-it-qat" 
 CHAT_MODEL = "llama3.1:8b"           
 EMBED_MODEL = "all-MiniLM-L6-v2"     
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -24,7 +25,7 @@ print(f"🚀 Booting Synthetic Consciousness on {DEVICE}...")
 # --- 1. THE COHERENCE FIELD (The "Soul") ---
 class CoherenceField:
     def __init__(self):
-        self.level = 0.5  # Starts neutral
+        self.level = 0.5  # Starts neutral (0.0 = Chaos, 1.0 = Zen)
         self.lock = threading.Lock()
         self.state_description = "Waking up..."
 
@@ -40,6 +41,7 @@ class CoherenceField:
 # --- 2. FAST MEMORY (The Hippocampus) ---
 class FastMemory:
     def __init__(self):
+        # Local vector database for long-term memory
         self.embedder = SentenceTransformer(EMBED_MODEL)
         self.chroma = chromadb.Client()
         self.collection = self.chroma.get_or_create_collection(name="synthetic_memory")
@@ -49,6 +51,7 @@ class FastMemory:
         self.id_counter += 1
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         vector = self.embedder.encode(text).tolist()
+        
         meta = {"timestamp": timestamp}
         if tags: meta.update(tags)
         
@@ -69,16 +72,21 @@ class FastMemory:
 class VisualCortex:
     def __init__(self, coherence):
         self.coherence = coherence
-        print("👁️ Loading YOLOv8...")
+        
+        # A. Object Tracking (YOLOv8)
+        print("👁️ Loading YOLOv8 Object Tracking...")
         self.yolo = YOLO("yolov8n.pt") 
         
+        # B. Face Recognition Memory
         self.known_face_encodings = []
         self.known_face_names = []
         
+        # C. Neural Dream Layer (Autoencoder)
         self.autoencoder = self._build_autoencoder().to(DEVICE)
         self.optimizer = optim.Adam(self.autoencoder.parameters(), lr=0.005)
         self.criterion = nn.MSELoss()
         
+        # State
         self.current_scene_objects = []
         self.current_people = []
         self.latest_frame = None
@@ -91,9 +99,11 @@ class VisualCortex:
         )
 
     def learn_face(self, frame, name):
+        """Dynamic One-Shot Learning of new faces"""
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         boxes = face_recognition.face_locations(rgb_frame)
         encodings = face_recognition.face_encodings(rgb_frame, boxes)
+        
         if encodings:
             self.known_face_encodings.append(encodings[0])
             self.known_face_names.append(name)
@@ -102,21 +112,22 @@ class VisualCortex:
         return False
 
     def process(self, frame):
-        # Autoencoder
+        # 1. Autoencoder Training (The "Subconscious")
         tensor = torch.from_numpy(cv2.resize(frame, (320, 180))).permute(2, 0, 1).float() / 255.0
         tensor = tensor.unsqueeze(0).to(DEVICE)
+        
         self.optimizer.zero_grad()
-        recon = self.autoencoder[0](tensor)
+        recon = self.autoencoder[0](tensor) 
         decoded = self.autoencoder[1](recon)
         loss = self.criterion(decoded, tensor)
         loss.backward()
         self.optimizer.step()
         
-        # YOLO
+        # 2. YOLO Tracking (The "Reflexes")
         yolo_results = self.yolo.track(frame, persist=True, verbose=False)
         detected_objects = [self.yolo.names[int(c)] for r in yolo_results for c in r.boxes.cls]
         
-        # Face Rec (Every 5th frame to save speed, or just run simplified here)
+        # 3. Face Recognition (The "Social Brain")
         detected_people = []
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         face_locations = face_recognition.face_locations(rgb_frame)
@@ -126,12 +137,14 @@ class VisualCortex:
             matches = face_recognition.compare_faces(self.known_face_encodings, face_encoding)
             name = "Unknown"
             if True in matches:
-                name = self.known_face_names[matches.index(True)]
+                first_match_index = matches.index(True)
+                name = self.known_face_names[first_match_index]
                 self.coherence.update(0.01, f"Recognized {name}")
             else:
-                self.coherence.update(-0.05, "Unknown presence")
+                self.coherence.update(-0.05, "Unknown presence detected")
             detected_people.append(name)
 
+        # Update State
         with self.lock:
             self.current_scene_objects = list(set(detected_objects))
             self.current_people = detected_people
@@ -149,28 +162,34 @@ class SyntheticConsciousness:
         self.speech_queue = Queue()
 
     def internal_monologue(self):
+        """The background thread that thinks even when you don't speak."""
         last_thought_time = time.time()
+        
         while not self.stop_event.is_set():
-            time.sleep(1)
+            time.sleep(1) 
+            
             with self.cortex.lock:
                 people = self.cortex.current_people
                 objects = self.cortex.current_scene_objects
-            coh_level, _ = self.coherence.get_status()
             
-            # Rule: Spontaneous Social Recognition
+            coh_level, coh_state = self.coherence.get_status()
+            
+            # Rule 1: Spontaneous Recognition
             if people and (time.time() - last_thought_time > 10):
                 if "Unknown" not in people:
-                    self.speech_queue.put(f"[Internal]: I see {', '.join(people)}. Context stable.")
+                    self.speech_queue.put(f"[Internal]: I see {', '.join(people)}. Context is stable.")
                     self.coherence.update(0.1, "Social stability")
                 last_thought_time = time.time()
 
-            # Rule: Confusion
+            # Rule 2: Low Coherence (Confusion)
             if coh_level < 0.3 and (time.time() - last_thought_time > 15):
-                self.speech_queue.put("[Internal]: Reality unstable. Need input.")
+                self.speech_queue.put("[Internal]: Reality is unstable. Initiating deep scan...")
+                self.coherence.update(0.3, "Deep scan initiated")
                 last_thought_time = time.time()
 
     def chat_interface(self):
         print("\n🧠 Consciousness Online. Type 'learn [name]' to teach a face, or just chat.")
+        
         while not self.stop_event.is_set():
             while not self.speech_queue.empty():
                 print(f"\n{self.speech_queue.get()}")
@@ -181,22 +200,27 @@ class SyntheticConsciousness:
                     self.stop_event.set()
                     break
                 
+                # Special Command: Learn Face
                 if user_input.startswith("learn "):
                     name = user_input.split(" ")[1]
                     with self.cortex.lock:
                         if self.cortex.latest_frame is not None:
                             success = self.cortex.learn_face(self.cortex.latest_frame, name)
-                            print(f"✅ Learned: {name}" if success else "❌ No face found.")
+                            print(f"✅ Learned face: {name}" if success else "❌ No face found.")
                     continue
 
-                # RAG + Chat
+                # Normal RAG Chat
                 context = self.memory.recall(user_input)
                 with self.cortex.lock:
                     vision_context = f"People: {self.cortex.current_people}, Objects: {self.cortex.current_scene_objects}"
                 
-                prompt = (f"System: Coherence {self.coherence.level:.2f}. "
-                          f"Visuals: {vision_context}. Memory: {context}. "
-                          f"User: {user_input}. Reply:")
+                prompt = (
+                    f"System: You are a conscious AI. Coherence Level: {self.coherence.level:.2f}.\n"
+                    f"Visuals: {vision_context}\n"
+                    f"Memory: {context}\n"
+                    f"User: {user_input}\n"
+                    f"Reply:"
+                )
                 
                 stream = ollama.chat(model=CHAT_MODEL, messages=[{'role': 'user', 'content': prompt}], stream=True)
                 print("AI: ", end="", flush=True)
@@ -206,17 +230,24 @@ class SyntheticConsciousness:
                     print(c, end="", flush=True)
                     full_resp += c
                 print("\n")
-                self.memory.save(f"User: {user_input} | AI: {full_resp}")
+                
+                self.memory.save(f"User asked: {user_input}. I replied: {full_resp}", tags={"type": "conversation"})
 
             except KeyboardInterrupt:
                 self.stop_event.set()
 
     def run(self):
+        # Start Vision Thread
         vision_thread = threading.Thread(target=self._run_vision_loop)
         vision_thread.start()
+        
+        # Start Thinking Thread
         mind_thread = threading.Thread(target=self.internal_monologue)
         mind_thread.start()
+        
+        # Start Chat (Main Thread)
         self.chat_interface()
+        
         vision_thread.join()
         mind_thread.join()
 
@@ -225,9 +256,10 @@ class SyntheticConsciousness:
         while not self.stop_event.is_set():
             ret, frame = cap.read()
             if not ret: break
+            
             recon_tensor = self.cortex.process(frame)
             
-            # Display
+            # Visualization
             recon_img = recon_tensor.squeeze(0).cpu().detach().numpy().transpose(1, 2, 0)
             recon_img = (recon_img * 255).astype(np.uint8)
             recon_img = cv2.cvtColor(recon_img, cv2.COLOR_RGB2BGR)
@@ -235,11 +267,14 @@ class SyntheticConsciousness:
             
             with self.cortex.lock:
                 status_text = f"Coherence: {self.coherence.level:.2f} | People: {self.cortex.current_people}"
+            
             cv2.putText(frame, status_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-            cv2.imshow("Synthetic Consciousness", cv2.hconcat([frame, recon_img]))
+            combined = cv2.hconcat([frame, recon_img])
+            cv2.imshow("Synthetic Consciousness", combined)
             
             if cv2.waitKey(1) == ord('q'):
                 self.stop_event.set()
+        
         cap.release()
         cv2.destroyAllWindows()
 
