@@ -139,7 +139,7 @@ class Agent:
 ### Installation
 
 ```bash
-git clone [https://github.com/dotdigitize/ai-cognition-vision-chat.git](https://github.com/dotdigitize/ai-cognition-vision-chat.git)
+git clone https://github.com/dotdigitize/ai-cognition-vision-chat.git
 cd ai-cognition-vision-chat
 pip install torch torchvision opencv-python ollama chromadb sentence-transformers ultralytics face_recognition
 ```
