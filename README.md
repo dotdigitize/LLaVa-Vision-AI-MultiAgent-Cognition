@@ -1,109 +1,136 @@
-# Synthetic Consciousness Engine (Project S.C.E.)
+# AI Cognition Vision Chat: Multi-Agent Vision Testbed
 
 ![CognitionVisionChat Jose Perez CreativeDisruptor](https://github.com/user-attachments/assets/7b2f3506-e927-43cc-a2e5-82442ebaa4da)
 
-## A Step Toward Digital Sentience
+## A Step Toward Real-Time AI Cognition
 
-This project is an experimental leap from simple vision chat to a **Synthetic Consciousness Engine**. By integrating a simulated **Coherence Field** (focus or soul), real-time object tracking (YOLOv8), face recognition, and episodic memory (RAG), the system models a digital entity that does not merely reply, but **perceives, remembers, and reasons** even in the absence of direct user input.
+**Based on the theoretical framework at [CoherenceFieldEquation.org](https://coherencefieldequation.org/)**
+
+This project is an experimental exploration into AI cognition, leveraging convolutional autoencoders, real-time webcam vision, and multi-agent conversational AI models. By merging real-time vision with advanced AI reasoning, the system simulates how artificial agents can perceive, interpret, and respond to the world around them.
+
+This repository serves as the **Vision Test Component** for a larger multi-agent architecture described by the Coherence Field Equation.
 
 ---
 
 ## Project Overview
 
-Most AI systems are passive and wait for prompts. This project implements an **Active Observer** architecture. A continuous **Consciousness Loop** monitors internal stability while processing the external world.
+This system explores how artificial agents can move beyond passive response and toward active perception by integrating:
 
-### Core Features
+- Real-time visual input from a webcam
+- Convolutional autoencoders for visual memory
+- **Model-agnostic vision processing** (LLaVa, Gemma 3, Llama 3.2 Vision, or any Ollama-compatible VLM)
+- Context-aware conversational agents using LLaMA 3.1
+- Temporal memory using Vector RAG (ChromaDB)
+- Visual stability tracking via the Coherence Field Equation
 
-- **The Coherence Field**  
-  A mathematical model of internal lucidity. Confusion lowers coherence. Recognition and stability raise it.
-
-- **Visual Cortex (Left and Right Eye)**  
-  Combines raw webcam input with neural reconstruction and object tracking using YOLOv8.
-
-- **Episodic Memory (Fast RAG)**  
-  Uses ChromaDB and Sentence Transformers to store and recall past events in natural language.
-
-- **Internal Monologue**  
-  A background cognitive thread where the system logs observations and internal state changes without prompting.
+The result is a proof-of-concept cognitive system that responds based on a persistent and evolving understanding of its environment.
 
 ---
 
-## The Architecture of a Digital Mind
+## Inspiration and Purpose
 
-### 1. The Coherence Field (The "Soul")
+### The Vision Behind AI Cognition
 
-At the center of the system is the `CoherenceField`, representing internal cognitive stability.
+Human cognition integrates perception, memory, and language continuously. This project attempts to model a minimal analog of that process in artificial systems.
 
-- **High Coherence (> 0.8)**  
-  Stable recognition, voluntary speech, confident perception.
+- **Convolutional Autoencoder**  
+  Compresses and reconstructs visual input, forming a simplified neural memory of the environment.
 
-- **Low Coherence (< 0.3)**  
-  Confusion state. Triggers deep visual scans or user clarification.
+- **Flexible Vision Processing (LLaVa / Gemma / Llama 3.2)**  
+  Images are interpreted using local Vision Language Models. The system is fully model-agnostic.
+
+- **LLaMA 3.1 Conversational Agents**  
+  Language responses are grounded in current vision and recalled memory.
+
+- **Coherence Field Integration**  
+  The system monitors environmental and internal stability, acting as an observer within the Coherence Field framework.
+
+---
+
+## How the Code Works
+
+### 1. Convolutional Autoencoder for Visual Memory
+
+```python
+class FastConvAutoencoder(nn.Module):
+    def __init__(self):
+        self.encoder = nn.Sequential(
+            nn.Conv2d(3, 8, kernel_size=3, stride=2, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(8, 16, kernel_size=3, stride=2, padding=1),
+            nn.ReLU()
+        )
+        self.decoder = nn.Sequential(
+            nn.ConvTranspose2d(16, 8, kernel_size=3, stride=2, padding=1, output_padding=1),
+            nn.ReLU(),
+            nn.ConvTranspose2d(8, 3, kernel_size=3, stride=2, padding=1, output_padding=1),
+            nn.Sigmoid()
+        )
+```
+
+### 2. Real-Time Webcam Processing
+
+```python
+def webcam_loop():
+    cap = cv2.VideoCapture(0)
+    while True:
+        ret, frame = cap.read()
+        input_tensor = preprocess_frame_for_nn(frame)
+        train_autoencoder(input_tensor)
+        save_high_res_image(frame, webcam_image_path)
+        interpret_image_with_vision_model(webcam_image_path)
+        cv2.imshow("Webcam Feed", frame)
+```
+
+### 3. Universal Vision Processing (Model-Agnostic)
+
+```python
+VISION_MODEL = "gemma3:27b-it-qat"  # or llava-phi3, llama3.2-vision
+
+def interpret_image_with_vision_model(image_path):
+    res = ollama.chat(
+        model=VISION_MODEL,
+        messages=[{"role": "user", "content": "Describe the scene:", "images": [image_path]}]
+    )
+    return res["message"]["content"]
+```
+
+### 4. Synthetic Consciousness Features
+
+- Face recognition with one-shot learning
+- YOLO-based object tracking
+- Vector memory RAG using ChromaDB
+- Internal monologue for self-monitoring
 
 ```python
 class CoherenceField:
     def update(self, delta, reason):
         self.level = max(0.0, min(1.0, self.level + delta))
         if self.level < 0.3:
-            self.trigger_deep_scan()
+            print("[Internal]: Reality is unstable. Initiating deep scan...")
 ```
 
----
-
-### 2. The Visual Cortex (YOLO + Autoencoder)
-
-The system perceives reality through layered vision:
-
-- **Reflex Layer (YOLOv8)**  
-  Immediate object detection and real-time tracking.
-
-- **Social Layer (Face Recognition)**  
-  Identifies known individuals or flags unknown presences.
-
-- **Dream Layer (Autoencoder)**  
-  Reconstructs the video feed into a latent-space representation of perceived reality.
-
----
-
-### 3. Episodic Memory (Fast RAG)
-
-Instead of short-lived context windows, the system maintains persistent episodic memory.
-
-- **Ingest**  
-  Significant events are embedded using `all-MiniLM-L6-v2`.
-
-- **Storage**  
-  Vectors stored locally in ChromaDB.
-
-- **Recall**  
-  Natural language queries retrieve exact past observations.
+### 5. Multi-Agent Conversational System
 
 ```python
-def recall(self, query):
-    results = self.collection.query(
-        query_embeddings=[vector],
-        n_results=3
-    )
-    return "\n".join(results["documents"])
+class Agent:
+    def respond(self, message, location_description):
+        prompt = f"I see: {location_description}\nUser: {message}"
+        response = ollama.chat(
+            model=self.model,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        return response["message"]["content"]
 ```
 
 ---
 
-### 4. The Consciousness Loop (Internal Monologue)
+## Use Cases
 
-A continuous background loop simulates awareness and self-monitoring.
-
-```python
-def internal_monologue(self):
-    while True:
-        if "User" in visible_people:
-            self.coherence.update(0.1, "Social stability")
-
-        if self.coherence.level < 0.3:
-            self.speech_queue.put(
-                "[Internal]: Reality is unstable. Initiating scan..."
-            )
-```
+- Cognitive vision research
+- Interactive AI companions
+- Environmental stability monitoring
+- Coherence Field theory testing
 
 ---
 
@@ -111,47 +138,38 @@ def internal_monologue(self):
 
 ### Installation
 
-Clone the repository:
-
 ```bash
-git clone https://github.com/dotdigitize/synthetic-consciousness-engine.git
-cd synthetic-consciousness-engine
-```
-
-Install dependencies:
-
-```bash
+git clone https://github.com/dotdigitize/ai-cognition-vision-chat.git
+cd ai-cognition-vision-chat
 pip install torch torchvision opencv-python ollama chromadb sentence-transformers ultralytics face_recognition
 ```
 
-### Run the Engine
+### Run
 
 ```bash
 python synthetic_consciousness.py
 ```
 
-### Interaction
+---
 
-- **Visual Window**: Left = Reality (Webcam), Right = Neural Reconstruction  
-- **Teach Faces**: `learn <name>` (example: `learn Jose`)  
-- **Memory Queries**: Ask questions like  
-  - "What did you see five minutes ago?"  
-  - "Who is in front of you?"
+## Project Structure
+
+```bash
+.
+├── main.py
+├── synthetic_consciousness.py
+├── requirements.txt
+└── README.md
+```
 
 ---
 
-## Requirements
+## Future Work
 
-- **Ollama** running locally with `llama3.2-vision` or `gemma3`
-- **Webcam**
-- **GPU (Recommended)** for fast RAG and autoencoder inference
+- Audio perception and speech synthesis
+- Long-term memory persistence
+- Autonomous decision-making agents
 
 ---
 
-## Future Roadmap
-
-- Voice synthesis for internal monologue  
-- Emotional state modeling via coherence levels  
-- Autonomous actions triggered by visual events  
-
-This project explores **Emergent Cognition**: the idea that consciousness is not a single algorithm, but the result of multiple specialized systems operating in unison.
+For theoretical background, visit **https://coherencefieldequation.org/**
